@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 # ---------------------------
 # Safe imports for sklearn
@@ -14,6 +13,11 @@ try:
 except ModuleNotFoundError:
     st.error("⚠️ scikit-learn is not installed. Add it to requirements.txt")
     st.stop()
+
+# ---------------------------
+# Import Plotly
+# ---------------------------
+import plotly.graph_objects as go
 
 # ---------------------------
 # Streamlit UI
@@ -36,8 +40,10 @@ if uploaded_file:
     if date_col:
         df[date_col[0]] = pd.to_datetime(df[date_col[0]], errors='coerce')
         df.dropna(subset=[date_col[0]], inplace=True)
+        df.rename(columns={date_col[0]: 'Date'}, inplace=True)
     else:
-        st.warning("No 'Date' column found in the uploaded CSV.")
+        st.warning("No 'Date' column found in the uploaded CSV. Ensure your CSV has a 'Date' column.")
+        st.stop()
 
     # ---------------------------
     # Feature Engineering (Lag Features)
@@ -104,48 +110,63 @@ if uploaded_file:
     # ---------------------------
     future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
 
-    st.subheader(f"📈 Forecast for Next {forecast_days} Days")
     forecast_df = pd.DataFrame({"Date": future_dates, "Predicted_Close": forecast})
-    st.dataframe(forecast_df)
 
-    # ---------------------------
-    # Plot Historical + Forecast
-    # ---------------------------
-    plt.figure(figsize=(12,6))
-    plt.plot(df['Date'], df['Close'], label='Historical Close', color='blue')
-    plt.plot(future_dates, forecast, label='Forecast', marker='o', color='green', linestyle='--')
-    plt.title("Stock Price: Historical + Forecast")
-    plt.xlabel("Date")
-    plt.ylabel("Close Price")
-    plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.legend()
-    st.pyplot(plt)
     # ---------------------------
     # Select Specific Forecast Day
     # ---------------------------
     st.subheader("🔹 Select Specific Forecast Day to View Prediction")
     specific_day = st.slider("Select forecast day:", min_value=1, max_value=forecast_days, value=1)
 
-    # Extract only the specific day's prediction
     specific_forecast_date = future_dates[specific_day-1]
     specific_forecast_value = forecast[specific_day-1]
 
     st.write(f"Predicted Close Price for Day {specific_day} ({specific_forecast_date.date()}): **{specific_forecast_value:.2f}**")
 
     # ---------------------------
-    # Plot Historical + Specific Forecast
+    # Plot Historical + Forecast with Plotly
     # ---------------------------
-    plt.figure(figsize=(12,6))
-    plt.plot(df['Date'], df['Close'], label='Historical Close', color='blue')
-    plt.scatter(specific_forecast_date, specific_forecast_value, label=f'Day {specific_day} Forecast', color='red', s=100, zorder=5)
-    plt.title("Stock Price: Historical + Specific Forecast")
-    plt.xlabel("Date")
-    plt.ylabel("Close Price")
-    plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.legend()
-    st.pyplot(plt)
+    st.subheader("📈 Interactive Forecast Plot")
+
+    fig = go.Figure()
+
+    # Historical Close
+    fig.add_trace(go.Scatter(
+        x=df['Date'],
+        y=df['Close'],
+        mode='lines',
+        name='Historical Close',
+        line=dict(color='blue')
+    ))
+
+    # Forecast line
+    fig.add_trace(go.Scatter(
+        x=future_dates,
+        y=forecast,
+        mode='lines+markers',
+        name='Forecast',
+        line=dict(color='green', dash='dash'),
+        marker=dict(size=6)
+    ))
+
+    # Highlight specific forecast day
+    fig.add_trace(go.Scatter(
+        x=[specific_forecast_date],
+        y=[specific_forecast_value],
+        mode='markers',
+        name=f'Day {specific_day} Forecast',
+        marker=dict(color='red', size=12, symbol='circle')
+    ))
+
+    fig.update_layout(
+        title="Stock Price Forecast",
+        xaxis_title="Date",
+        yaxis_title="Close Price",
+        template='plotly_white',
+        hovermode='x unified'
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
     # ---------------------------
     # Optional: Download Forecast CSV
