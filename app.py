@@ -121,6 +121,31 @@ if uploaded_file:
     plt.grid(True)
     plt.legend()
     st.pyplot(plt)
+    # ---------------------------
+# Select Specific Forecast Day
+# ---------------------------
+st.subheader("🔹 Select Specific Forecast Day to View Prediction")
+specific_day = st.slider("Select forecast day:", min_value=1, max_value=forecast_days, value=1)
+
+# Extract only the specific day's prediction
+specific_forecast_date = future_dates[specific_day-1]
+specific_forecast_value = forecast[specific_day-1]
+
+st.write(f"Predicted Close Price for Day {specific_day} ({specific_forecast_date.date()}): **{specific_forecast_value:.2f}**")
+
+# ---------------------------
+# Plot Historical + Specific Forecast
+# ---------------------------
+plt.figure(figsize=(12,6))
+plt.plot(df['Date'], df['Close'], label='Historical Close', color='blue')
+plt.scatter(specific_forecast_date, specific_forecast_value, label=f'Day {specific_day} Forecast', color='red', s=100, zorder=5)
+plt.title("Stock Price: Historical + Specific Forecast")
+plt.xlabel("Date")
+plt.ylabel("Close Price")
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.legend()
+st.pyplot(plt)
 
     # ---------------------------
     # Optional: Download Forecast CSV
