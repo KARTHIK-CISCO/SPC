@@ -26,7 +26,10 @@ if uploaded_file:
     # ---------------------------
     st.subheader("🔧 Feature Engineering (Lag Creation)")
 
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    df.dropna(subset=['Date'], inplace=True)
+
+    st.write("Columns in CSV:", df.columns)
 
     features = ['Open', 'High', 'Low', 'Volume']
 
