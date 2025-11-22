@@ -1,10 +1,39 @@
+%%writefile app.py
 import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
-from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
+
+# ---------------------------
+#  Safe Imports
+# ---------------------------
+missing_libs = []
+
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    missing_libs.append('pandas')
+
+try:
+    import numpy as np
+except ModuleNotFoundError:
+    missing_libs.append('numpy')
+
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:
+    missing_libs.append('matplotlib')
+
+try:
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
+    from sklearn.metrics import mean_squared_error
+except ModuleNotFoundError:
+    missing_libs.append('scikit-learn')
+
+# ---------------------------
+#  Stop app if libraries missing
+# ---------------------------
+if missing_libs:
+    st.error(f"⚠️ Missing libraries: {', '.join(missing_libs)}\nPlease install them using pip.")
+    st.stop()
 
 # ---------------------------
 #  Streamlit UI
@@ -15,13 +44,13 @@ st.write("Upload your stock dataset (Date, Open, High, Low, Close, Volume).")
 uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
 
 if uploaded_file:
-    df = pd.read_csv("/content/AAPL.csv")
+    df = pd.read_csv(uploaded_file)
 
     st.subheader("📄 Dataset Preview")
     st.dataframe(df.head())
 
     # ---------------------------
-    #  Feature Engineering
+    # Feature Engineering
     # ---------------------------
     st.subheader("🔧 Feature Engineering (Lag Creation)")
 
@@ -62,7 +91,6 @@ if uploaded_file:
     rf_grid.fit(X_train, y_train)
 
     best_rf = rf_grid.best_estimator_
-
     st.write("Best Parameters:", rf_grid.best_params_)
 
     # ---------------------------
@@ -101,8 +129,5 @@ if uploaded_file:
     plt.legend()
     st.pyplot(fig)
 
-
-
 else:
     st.info("Please upload a CSV file to proceed.")
-
