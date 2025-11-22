@@ -147,15 +147,15 @@ plt.grid(True)
 plt.legend()
 st.pyplot(plt)
 
-    # ---------------------------
-    # Optional: Download Forecast CSV
-    # ---------------------------
-    st.download_button(
-        label="Download Forecast CSV",
-        data=forecast_df.to_csv(index=False),
-        file_name=f'forecast_{forecast_days}_days.csv',
-        mime='text/csv'
-    )
+# ---------------------------
+# Optional: Download Forecast CSV
+# ---------------------------
+st.download_button(
+label="Download Forecast CSV",
+data=forecast_df.to_csv(index=False),
+file_name=f'forecast_{forecast_days}_days.csv',
+mime='text/csv'
+)
 
 else:
     st.info("Please upload a CSV file to proceed.")
