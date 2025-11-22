@@ -19,7 +19,7 @@ uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    df = df.sort_values('Date')
+    
     st.subheader("📄 Dataset Preview")
     st.dataframe(df.head())
 
@@ -76,7 +76,7 @@ if uploaded_file:
     st.subheader("🔹 Pick Forecast Day")
     specific_day = st.slider("Forecast day:", 1, forecast_days, 1)
     st.write(f"Predicted Close Price Day {specific_day} ({future_dates[specific_day-1].date()}): **{forecast[specific_day-1]:.2f}**")
-
+    df = df.sort_values('Date')
     st.subheader("📈 Interactive Smoothed Forecast Plot")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
