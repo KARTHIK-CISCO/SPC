@@ -54,7 +54,7 @@ if uploaded_file:
     # ---------------------------
     st.subheader("🎯 Hyperparameter Tuning with GridSearchCV")
 
-    tscv = TimeSeriesSplit(n_splits=5)
+    #tscv = TimeSeriesSplit(n_splits=5)
 
     rf_params = {
         'n_estimators': [100, 200],
