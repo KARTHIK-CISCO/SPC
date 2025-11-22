@@ -80,10 +80,14 @@ if uploaded_file:
     st.write(f"**R² Score:** {r2:.4f}")
 
     # ---------------------------
-    # Forecast Next 30 Days
+    # Forecast Days Slider
     # ---------------------------
-    st.subheader("📅 Forecast for Next 30 Days")
-    forecast_days = 30
+    st.subheader("📅 Select Forecast Days")
+    forecast_days = st.slider("Number of days to forecast:", min_value=1, max_value=90, value=30)
+
+    # ---------------------------
+    # Forecast Next N Days
+    # ---------------------------
     last_row = X_ml.iloc[-1].copy()
     forecast = []
 
@@ -95,20 +99,38 @@ if uploaded_file:
             last_row[f'lag_{lag}'] = last_row[f'lag_{lag-1}']
         last_row['lag_1'] = pred
 
-    st.write(forecast)
+    # ---------------------------
+    # Prepare Future Dates
+    # ---------------------------
+    future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
+
+    st.subheader(f"📈 Forecast for Next {forecast_days} Days")
+    forecast_df = pd.DataFrame({"Date": future_dates, "Predicted_Close": forecast})
+    st.dataframe(forecast_df)
 
     # ---------------------------
     # Plot Historical + Forecast
     # ---------------------------
-    plt.figure(figsize=(12,5))
+    plt.figure(figsize=(12,6))
     plt.plot(df['Date'], df['Close'], label='Historical Close', color='blue')
-    future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
-    plt.plot(future_dates, forecast, label='Forecast 30 Days', marker='o', color='green')
-    plt.title("Stock Price: Historical + 30 Days Forecast")
+    plt.plot(future_dates, forecast, label='Forecast', marker='o', color='green', linestyle='--')
+    plt.title("Stock Price: Historical + Forecast")
     plt.xlabel("Date")
     plt.ylabel("Close Price")
+    plt.xticks(rotation=45)
+    plt.grid(True)
     plt.legend()
     st.pyplot(plt)
+
+    # ---------------------------
+    # Optional: Download Forecast CSV
+    # ---------------------------
+    st.download_button(
+        label="Download Forecast CSV",
+        data=forecast_df.to_csv(index=False),
+        file_name=f'forecast_{forecast_days}_days.csv',
+        mime='text/csv'
+    )
 
 else:
     st.info("Please upload a CSV file to proceed.")
