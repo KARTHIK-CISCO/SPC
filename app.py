@@ -39,6 +39,10 @@ if uploaded_file:
     features_ml = features + [f'lag_{i}' for i in range(1, 6)]
     X_ml = df[features_ml]
     y_ml = df['Close']
+    rf_params = {
+            'n_estimators': [100, 200],
+            'max_depth': [3, 5, 7]
+        }
 
     # Set parameters directly as you requested
     rf = RandomForestRegressor(max_depth=5, n_estimators=100, random_state=42)
