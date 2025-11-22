@@ -76,7 +76,7 @@ if uploaded_file:
     st.subheader("🔹 Pick Forecast Day")
     specific_day = st.slider("Forecast day:", 1, forecast_days, 1)
     st.write(f"Predicted Close Price Day {specific_day} ({future_dates[specific_day-1].date()}): **{forecast[specific_day-1]:.2f}**")
-    forecast_real_scale = scaler.inverse_transform(np.array(forecast).reshape(-1, 1)).flatten()
+    
     df = df.sort_values('Date')
     
 
