@@ -54,14 +54,14 @@ if uploaded_file:
     # ---------------------------
     st.subheader("🎯 Hyperparameter Tuning with GridSearchCV")
 
-    #tscv = TimeSeriesSplit(n_splits=5)
+    tscv = TimeSeriesSplit(n_splits=5)
 
     rf_params = {
         'n_estimators': [100, 200],
         'max_depth': [3, 5, 7]
     }
 
-    #rf = RandomForestRegressor(random_state=42)
+    rf = RandomForestRegressor(random_state=42)
     rf_grid = GridSearchCV(rf, rf_params, cv=tscv, scoring='neg_mean_squared_error')
     rf_grid.fit(X_train, y_train)
 
