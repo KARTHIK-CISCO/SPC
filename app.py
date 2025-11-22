@@ -1,4 +1,4 @@
-
+!pip install matplotlib scikit-learn
 import streamlit as st
 
 # ---------------------------
