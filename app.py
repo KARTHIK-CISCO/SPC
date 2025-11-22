@@ -12,8 +12,8 @@ except ModuleNotFoundError:
 
 import plotly.graph_objects as go
 
-st.title("📈 Stock Prediction (Smooth Forecast)")
-st.write("Upload a stock CSV: Date, Open, High, Low, Close, Volume.")
+st.title("📈 Stock Price Prediction (Smooth Forecast)")
+st.write("Upload your stock data (Date, Open, High, Low, Close, Volume).")
 
 uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
 
@@ -28,10 +28,9 @@ if uploaded_file:
         df.dropna(subset=[date_col[0]], inplace=True)
         df.rename(columns={date_col[0]: 'Date'}, inplace=True)
     else:
-        st.warning("No 'Date' column found in the uploaded CSV. Add a 'Date' column.")
+        st.warning("No 'Date' column found in the uploaded CSV. Ensure your CSV has a 'Date' column.")
         st.stop()
 
-    # Feature Engineering: Lag features (avoid making too many)
     features = ['Open', 'High', 'Low', 'Volume']
     for lag in range(1, 6):
         df[f'lag_{lag}'] = df['Close'].shift(lag)
@@ -41,38 +40,27 @@ if uploaded_file:
     X_ml = df[features_ml]
     y_ml = df['Close']
 
-    # Model Training (Random Forest)
-    tscv = TimeSeriesSplit(n_splits=3)
-    rf_params = {'n_estimators': [100], 'max_depth': [3, 5]}
-    rf = RandomForestRegressor(random_state=42)
-    rf_grid = GridSearchCV(rf, rf_params, cv=tscv, scoring='neg_mean_squared_error')
-    rf_grid.fit(X_ml, y_ml)
-    best_rf = rf_grid.best_estimator_
-    st.write("Best Parameters:", rf_grid.best_params_)
+    # Set parameters directly as you requested
+    rf = RandomForestRegressor(max_depth=5, n_estimators=100, random_state=42)
+    rf.fit(X_ml, y_ml)
 
-    # In-sample evaluation
-    y_pred_in_sample = best_rf.predict(X_ml)
+    y_pred_in_sample = rf.predict(X_ml)
     rmse = np.sqrt(mean_squared_error(y_ml, y_pred_in_sample))
     r2 = r2_score(y_ml, y_pred_in_sample)
     st.write(f"**RMSE:** {rmse:.4f}")
     st.write(f"**R² Score:** {r2:.4f}")
 
-    # Forecast next N days with smoothing
     st.subheader("📅 Select Forecast Days")
     forecast_days = st.slider("Forecast Days", 1, 90, 30)
-    
+
     last_row = X_ml.iloc[-1].copy()
     forecast = []
-    # For smooth forecast, force predicted_close = previous day's predicted_close
     prev_close = df['Close'].iloc[-1]
     for i in range(forecast_days):
-        # Use only lags (not features from the future) and smooth step
-        pred = best_rf.predict([last_row.values])[0]
-        # Final prediction is simple average of recent values to avoid abrupt changes
-        smoothed_pred = 0.7 * prev_close + 0.3 * pred  # weighted smoothing, tune as needed
+        pred = rf.predict([last_row.values])[0]
+        smoothed_pred = 0.7 * prev_close + 0.3 * pred
         forecast.append(smoothed_pred)
         prev_close = smoothed_pred
-        # update lag features (with smoothed, not raw pred)
         for lag in range(5, 1, -1):
             last_row[f'lag_{lag}'] = last_row[f'lag_{lag-1}']
         last_row['lag_1'] = smoothed_pred
@@ -80,7 +68,7 @@ if uploaded_file:
     future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
     forecast_df = pd.DataFrame({"Date": future_dates, "Predicted_Close": forecast})
 
-    st.subheader("🔹 Pick Forecast Day To View")
+    st.subheader("🔹 Pick Forecast Day")
     specific_day = st.slider("Forecast day:", 1, forecast_days, 1)
     st.write(f"Predicted Close Price Day {specific_day} ({future_dates[specific_day-1].date()}): **{forecast[specific_day-1]:.2f}**")
 
