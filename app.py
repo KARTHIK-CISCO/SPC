@@ -105,4 +105,10 @@ if uploaded_file:
     future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
     plt.plot(future_dates, forecast, label='Forecast 30 Days', marker='o', color='green')
     plt.title("Stock Price: Historical + 30 Days Forecast")
-    plt.x
+    plt.xlabel("Date")
+    plt.ylabel("Close Price")
+    plt.legend()
+    st.pyplot(plt)
+
+else:
+    st.info("Please upload a CSV file to proceed.")
