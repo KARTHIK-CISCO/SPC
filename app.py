@@ -61,7 +61,7 @@ if uploaded_file:
         'max_depth': [3, 5, 7]
     }
 
-    rf = RandomForestRegressor(random_state=42)
+    #rf = RandomForestRegressor(random_state=42)
     rf_grid = GridSearchCV(rf, rf_params, cv=tscv, scoring='neg_mean_squared_error')
     rf_grid.fit(X_train, y_train)
 
