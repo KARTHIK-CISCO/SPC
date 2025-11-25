@@ -7,12 +7,12 @@ try:
     from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
     from sklearn.metrics import mean_squared_error, r2_score
 except ModuleNotFoundError:
-    st.error("⚠️ scikit-learn is not installed. Add it to requirements.txt")
+    st.error(" scikit-learn is not installed. Add it to requirements.txt")
     st.stop()
 
 import plotly.graph_objects as go
 
-st.title("📈 Stock Price Prediction (Smooth Forecast)")
+st.title(" Stock Price Prediction (Smooth Forecast)")
 st.write("Upload your stock data (Date, Open, High, Low, Close, Volume).")
 
 uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
@@ -20,7 +20,7 @@ uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     
-    st.subheader("📄 Dataset Preview")
+    st.subheader(" Dataset Preview")
     st.dataframe(df.head())
 
     date_col = [col for col in df.columns if 'date' in col.lower()]
@@ -55,7 +55,7 @@ if uploaded_file:
     st.write(f"**RMSE:** {rmse:.4f}")
     st.write(f"**R² Score:** {r2:.4f}")
 
-    st.subheader("📅 Select Forecast Days")
+    st.subheader(" Select Forecast Days")
     forecast_days = st.slider("Forecast Days", 1, 90, 30)
 
     last_row = X_ml.iloc[-1].copy()
@@ -73,14 +73,14 @@ if uploaded_file:
     future_dates = pd.date_range(df['Date'].iloc[-1] + pd.Timedelta(days=1), periods=forecast_days)
     forecast_df = pd.DataFrame({"Date": future_dates, "Predicted_Close": forecast})
 
-    st.subheader("🔹 Pick Forecast Day")
+    st.subheader(" Pick Forecast Day")
     specific_day = st.slider("Forecast day:", 1, forecast_days, 1)
     st.write(f"Predicted Close Price Day {specific_day} ({future_dates[specific_day-1].date()}): **{forecast[specific_day-1]:.2f}**")
     
     df = df.sort_values('Date')
     
 
-    st.subheader("📈 Interactive Smoothed Forecast Plot")
+    st.subheader(" Interactive Smoothed Forecast Plot")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df['Date'],
