@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 
 import plotly.graph_objects as go
 
-st.title(" Stock Price Prediction (Smooth Forecast)")
+st.title(" Stock Price Prediction")
 st.write("Upload your stock data (Date, Open, High, Low, Close, Volume).")
 
 uploaded_file = st.file_uploader("Upload CSV File", type=['csv'])
