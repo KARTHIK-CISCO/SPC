@@ -56,7 +56,7 @@ if uploaded_file:
     st.write(f"**R² Score:** {r2:.4f}")
 
     st.subheader(" Select Forecast Days")
-    forecast_days = st.slider("Forecast Days", 1, 90, 30)
+    forecast_days = st.slider("Forecast Days", 1, 30, 30)
 
     last_row = X_ml.iloc[-1].copy()
     forecast = []
